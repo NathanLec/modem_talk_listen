@@ -1,15 +1,13 @@
-# Auto detect text files and perform LF normalization
-* text=auto
-
 # Listen / Speaker  PC
 
 ## Modules
 
-import os
 import subprocess
+import time
 
 ## Variables
 
+lap_send = 0.79
 lap = 1
 unit = ""
 
@@ -24,6 +22,9 @@ PORT = "9200"
 
     ## Prise de controle
 
+subprocess.run("echo '+++ATC' | nc -N %s %s" % (HOST,PORT),shell=True)
+
+    ## Sending and listening
 
 while True:
     command = open("%s.txt"%(name_command_file),"r+")
@@ -32,8 +33,8 @@ while True:
         for x in commandlines.split("\n"):
             xlen = str(len(x))
             if x != "":
-                subprocess.run("echo 'AT*SENDIM,%s,1,noack,%s' | nc -w 1 %s %s" % (xlen,x,HOST,PORT),shell=True)
+                subprocess.run("echo 'AT*SENDIM,%s,1,noack,%s' | nc -N %s %s" % (xlen,x,HOST,PORT),shell=True)
+                time.sleep(lap_send)
         open("%s.txt"%(name_command_file),"w+")
     command.close()
     subprocess.run("nc -w %s%s %s %s >> %s.txt" % (str(lap),unit,HOST,PORT,name_receive_file),shell=True)
-
